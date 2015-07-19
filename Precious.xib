@@ -75,7 +75,7 @@ DQ
                             </menuItem>
                             <menuItem title="Sing in..." keyEquivalent="s" id="24J-2A-Z6x">
                                 <connections>
-                                    <action selector="deminiaturize:" target="6b0-Xv-CQW" id="plZ-rv-HbC"/>
+                                    <action selector="deminiaturize:" target="6b0-Xv-CQW" id="1rm-ZG-C63"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="nyX-mi-2Eb"/>
@@ -487,11 +487,14 @@ DQ
                         <buttonCell key="cell" type="roundTextured" title="Sign in and sync" bezelStyle="texturedRounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="o4i-1e-cFW">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
+                            <connections>
+                                <action selector="sync:" target="-2" id="0iS-fy-gPS"/>
+                            </connections>
                         </buttonCell>
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="269" y="150"/>
+            <point key="canvasLocation" x="258" y="309"/>
         </window>
         <window title="Create account" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="q6k-J6-Qgh" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>

@@ -11,12 +11,13 @@ APP = ['Precious.py']
 DATA_FILES = ['Precious.xib']
 OPTIONS = {
     'argv_emulation': True,
-    'iconfile': 'goldcoin.icns'
+    'iconfile': 'goldcoin.icns',
+    'includes': ['requests']
 }
 
 setup(
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
-    setup_requires=['py2app'],
+    setup_requires=['py2app', "requests"],
 )

@@ -148,6 +148,11 @@ class PreciousController(NSWindowController):
         # self.productive = 1
         # self.updateDisplay()
         # show help screen
+
+    # sync: sync the last logged hours with the web database
+    @objc.IBAction
+    def sync_(self, sender):
+        self.syncData()
     
     # submit the data
     @objc.IBAction
@@ -366,6 +371,26 @@ class PreciousController(NSWindowController):
         from threading import Timer
         # today = datetime.now() HERE WE NEED TO SET TIMER FOR APPROPRIATE TIME!
         Timer(3, self.endOfHour, ()).start()
+        
+    def syncData(self):
+        import requests
+        url = 'http://127.0.0.1:8000/sync_mac'
+        print 'Syncing start...'
+        try:
+            # open the file to read data from
+            fr = open('precious_mytime.js', 'r')
+            # load and decode the JSON data
+            json_data = json.load(fr)
+            mydata = json.dumps(json_data)
+            r = requests.post(url, data=mydata)
+            print 'Syncing data posted...'
+            print r.text
+            # close the file
+            fr.close
+        except IOError:
+            # file does not exist yet - set json_data to an empty dictionary
+            print 'File not found'
+            json_data = {}
     
 if __name__ == "__main__":
     app = NSApplication.sharedApplication()
