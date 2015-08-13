@@ -374,23 +374,45 @@ class PreciousController(NSWindowController):
         
     def syncData(self):
         import requests
-        url = 'http://127.0.0.1:8000/sync_mac'
+        
         print 'Syncing start...'
-        try:
-            # open the file to read data from
-            fr = open('precious_mytime.js', 'r')
-            # load and decode the JSON data
-            json_data = json.load(fr)
-            mydata = json.dumps(json_data)
-            r = requests.post(url, data=mydata)
-            print 'Syncing data posted...'
-            print r.text
-            # close the file
-            fr.close
-        except IOError:
-            # file does not exist yet - set json_data to an empty dictionary
-            print 'File not found'
-            json_data = {}
+
+        # request existing day data
+        url = "http://127.0.0.1:8000/api/days?synced_before={0}&month=6".format(datetime.now())
+        r = requests.get(url)
+        existing_days = r.json()
+        
+        print url
+
+        for day in existing_days:
+            print day['id']
+
+        # request existing hour data
+        url = "http://127.0.0.1:8000/api/hours?synced_before={0}&day=13".format(datetime.now())
+        r = requests.get(url)
+        existing_hours = r.json()
+        
+        print url
+
+        for hour in existing_hours:
+            print hour['id']
+
+
+        # try:
+        #     # open the file to read data from
+        #     fr = open('precious_mytime.js', 'r')
+        #     # load and decode the JSON data
+        #     json_data = json.load(fr)
+        #     mydata = json.dumps(json_data)
+        #     r = requests.post(url, data=mydata)
+        #     print 'Syncing data posted...'
+        #     print r.text
+        #     # close the file
+        #     fr.close
+        # except IOError:
+        #     # file does not exist yet - set json_data to an empty dictionary
+        #     print 'File not found'
+        #     json_data = {}
     
 if __name__ == "__main__":
     app = NSApplication.sharedApplication()
