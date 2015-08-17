@@ -380,39 +380,103 @@ class PreciousController(NSWindowController):
         # request existing day data
         url = "http://127.0.0.1:8000/api/days?synced_before={0}&month=6".format(datetime.now())
         r = requests.get(url)
-        existing_days = r.json()
+        days = r.json()
         
         print url
-
-        for day in existing_days:
-            print day['id']
+        existing_days = []
+        for day in days:
+            existing_days.append(day['day'])
 
         # request existing hour data
         url = "http://127.0.0.1:8000/api/hours?synced_before={0}&day=13".format(datetime.now())
         r = requests.get(url)
-        existing_hours = r.json()
+        hours = r.json()
         
         print url
 
-        for hour in existing_hours:
-            print hour['id']
+        existing_hours = []
+        for hour in hours:
+            existing_hours.append(hour['hour'])     
+
+        try:
+            # open the file to read data from
+            fr = open('precious_mytime.js', 'r')
+            # load and decode the JSON data
+            json_data = json.load(fr)
+            # mydata = json.dumps(json_data)
+            # r = requests.post(url, data=mydata)
+            # print 'Syncing data posted...'
+            # print r.text
+            for year in json_data:
+                for month in json_data[year]:
+                    for day in json_data[year][month]:
+                        # TODO: api post day to server
+                        print 'day API post here...'
+                        url = "http://127.0.0.1:8000/api/days/"
+                        
+                        day_data = {'author':1, 'day':day, 'year':year, 'month':month}
+                        
+                        if 'reflection' in json_data[year][month][day]:
+                            day_data['day_text'] = json_data[year][month][day]['reflection']
+                        
+                        print url
+                        # day_data = json.dumps(day_data)
+                        # print day_data
+                        r = requests.post(url, data=day_data)
+                        print r.text
+
+                        # request day ID
+                        url = "http://127.0.0.1:8000/api/days/?day={0}&month={1}&year={2}".format(day,month,year)
+                        print url
+                        r = requests.get(url)
+                        day_data = r.json()
+                        day_data = day_data.pop()
+
+                        for hour in json_data[year][month][day]:
+
+                            if hour != 'reflection':
+                        
+                                # TODO: api post hour to server
+                                # check if not reflection
+                                print 'hour API post here...'
+                                print hour
+
+                                hour_data = {'author':1, 'day':day_data['id'], 'hour':hour}
+
+                                if 'activity' in json_data[year][month][day][hour]:
+                                    hour_data['hour_text'] = json_data[year][month][day][hour]['activity']
+                                if 'productive' in json_data[year][month][day][hour]:
+                                    hour_data['productive'] = json_data[year][month][day][hour]['productive']
 
 
-        # try:
-        #     # open the file to read data from
-        #     fr = open('precious_mytime.js', 'r')
-        #     # load and decode the JSON data
-        #     json_data = json.load(fr)
-        #     mydata = json.dumps(json_data)
-        #     r = requests.post(url, data=mydata)
-        #     print 'Syncing data posted...'
-        #     print r.text
-        #     # close the file
-        #     fr.close
-        # except IOError:
-        #     # file does not exist yet - set json_data to an empty dictionary
-        #     print 'File not found'
-        #     json_data = {}
+                                url = "http://127.0.0.1:8000/api/hours/"
+                        
+                                print url
+                                # day_data = json.dumps(day_data)
+                                # print day_data
+                                r = requests.post(url, data=hour_data)
+                                print r.text
+            
+            # for hour in existing_hours:
+            #     if
+            #         hour['day__year'] in json_data and
+            #         hour['day__month'] in json_data[hour['day__year']] and
+            #         hour['day__day'] in json_data[hour['day__year']][hour['day__month']] and
+            #         hour['hour'] in json_data[hour['day__year']][hour['day__month']]
+            #
+            #
+            #
+            # if year in json_data and month in json_data[year] and day in json_data[year][month]:
+            #
+            # for item in json_data:
+            #     print item
+            
+            # close the file
+            fr.close
+        except IOError:
+            # file does not exist yet - set json_data to an empty dictionary
+            print 'File not found'
+            json_data = {}
     
 if __name__ == "__main__":
     app = NSApplication.sharedApplication()
