@@ -377,26 +377,30 @@ class PreciousController(NSWindowController):
         
         print 'Syncing start...'
 
-        # request existing day data
-        url = "http://127.0.0.1:8000/api/days?synced_before={0}&month=6".format(datetime.now())
+        # TEMP author
+        # TODO: add author ID
+        author = 1
+
+        # 3 days ago datetime
+        dt = datetime.now() - datetime.timedelta(days=3)
+
+        # request recently logged days
+        url = "http://127.0.0.1:8000/api/days?synced_after={0}".format(dt)
         r = requests.get(url)
         days = r.json()
-        
         print url
-        existing_days = []
+        recent_days = []
         for day in days:
-            existing_days.append(day['day'])
+            recent_days.append(day['day'])
 
-        # request existing hour data
-        url = "http://127.0.0.1:8000/api/hours?synced_before={0}&day=13".format(datetime.now())
+        # request recently logged hours data
+        url = "http://127.0.0.1:8000/api/hours?synced_after={0}".format(dt)
         r = requests.get(url)
         hours = r.json()
-        
         print url
-
-        existing_hours = []
+        recent_hours = []
         for hour in hours:
-            existing_hours.append(hour['hour'])     
+            recent_hours.append(hour['hour'])
 
         try:
             # open the file to read data from
@@ -410,15 +414,28 @@ class PreciousController(NSWindowController):
             for year in json_data:
                 for month in json_data[year]:
                     for day in json_data[year][month]:
-                        # TODO: api post day to server
-                        print 'day API post here...'
-                        url = "http://127.0.0.1:8000/api/days/"
-                        
+
+                        print '[Day API POST]'
+
+                        # construct the day data dict
                         day_data = {'author':1, 'day':day, 'year':year, 'month':month}
-                        
                         if 'reflection' in json_data[year][month][day]:
                             day_data['day_text'] = json_data[year][month][day]['reflection']
-                        
+
+                        # if day has not been logged in the last 3 days - try to add a new one
+                        if day not in recent_days:
+                            url = 'http://127.0.0.1:8000/api/days/'
+                        # otherwise update the existing one
+                        else:
+                            url = "http://127.0.0.1:8000/api/days/?day={0}&month={1}&year={2}&author={3}".format(day,month,year,author)
+                            print url
+                            r = requests.get(url)
+                            this_day = r.json()
+                            this_day = recent_day.pop()
+                            # the PUT url
+                            url = 'http://127.0.0.1:8000/api/days/{0}'.format(this_day['id'])
+
+
                         print url
                         # day_data = json.dumps(day_data)
                         # print day_data
@@ -426,28 +443,26 @@ class PreciousController(NSWindowController):
                         print r.text
 
                         # request day ID
-                        url = "http://127.0.0.1:8000/api/days/?day={0}&month={1}&year={2}".format(day,month,year)
-                        print url
-                        r = requests.get(url)
-                        day_data = r.json()
-                        day_data = day_data.pop()
+                        # TODO refactor into one function with above
+                        if not this_day:
+                            url = "http://127.0.0.1:8000/api/days/?day={0}&month={1}&year={2}&author={3}".format(day,month,year,author)
+                            print url
+                            r = requests.get(url)
+                            this_day = r.json()
+                            this_day = this_day.pop()
 
                         for hour in json_data[year][month][day]:
 
                             if hour != 'reflection':
-                        
-                                # TODO: api post hour to server
-                                # check if not reflection
-                                print 'hour API post here...'
-                                print hour
 
-                                hour_data = {'author':1, 'day':day_data['id'], 'hour':hour}
+                                print '[Hour API POST]'
+
+                                hour_data = {'author':1, 'day':this_day['id'], 'hour':hour}
 
                                 if 'activity' in json_data[year][month][day][hour]:
                                     hour_data['hour_text'] = json_data[year][month][day][hour]['activity']
                                 if 'productive' in json_data[year][month][day][hour]:
                                     hour_data['productive'] = json_data[year][month][day][hour]['productive']
-
 
                                 url = "http://127.0.0.1:8000/api/hours/"
                         
@@ -456,21 +471,7 @@ class PreciousController(NSWindowController):
                                 # print day_data
                                 r = requests.post(url, data=hour_data)
                                 print r.text
-            
-            # for hour in existing_hours:
-            #     if
-            #         hour['day__year'] in json_data and
-            #         hour['day__month'] in json_data[hour['day__year']] and
-            #         hour['day__day'] in json_data[hour['day__year']][hour['day__month']] and
-            #         hour['hour'] in json_data[hour['day__year']][hour['day__month']]
-            #
-            #
-            #
-            # if year in json_data and month in json_data[year] and day in json_data[year][month]:
-            #
-            # for item in json_data:
-            #     print item
-            
+
             # close the file
             fr.close
         except IOError:
