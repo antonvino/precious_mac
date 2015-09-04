@@ -1,19 +1,105 @@
 from Cocoa import *
 from Foundation import NSObject
 import json, signal, os, pprint, time
-from datetime import datetime
+from datetime import datetime, timedelta
+
+SITE_URL = 'http://127.0.0.1:8000/'
+
+class PreciousUser():
+
+    def __init__(self):
+        self.token = None
+
+    def authenticate(self, email, password):
+        print 'authenticating...'
+        import requests
+
+        # construct auth data using the fields
+        auth_data = {
+            'username': email,
+            'password': password
+        }
+
+        # get token for the user
+        url = SITE_URL + 'api/token-auth/'
+        print url
+        print auth_data
+        r = requests.post(url, data=auth_data)
+        token = r.json()
+        if 'token' in token:
+            self.token = token['token']
+            self.email = auth_data['username']
+        else:
+            raise ValueError('E-mail or password do not match')
+
+    def create(self, email, username, password):
+        print 'creating an account...'
+        import requests
+
+        # construct auth data using the fields
+        auth_data = {
+            'email': email,
+            'username': username,
+            'password': password
+        }
+
+        # get token for the user
+        url = SITE_URL + 'api/sign-up/'
+        print url
+        print auth_data
+        r = requests.post(url, data=auth_data)
+        print r.text
+
+        response = r.json()
+        if 'id' not in response:
+            # Django sends errors for each field
+            if 'email' not in response:
+                response['email'] = ['']
+            if 'username' not in response:
+                response['username'] = ['']
+            raise ValueError(response['email'][0], response['username'][0])
+        # token = r.json()
+        # if 'token' in token:
+        #     self.token = token['token']
+        #     self.email = auth_data['username']
 
 
 class PreciousController(NSWindowController):
+    # Hour window
     hourLabel = objc.IBOutlet()
-    dayLabel = objc.IBOutlet()
-    dayButton = objc.IBOutlet()
+    hourField = objc.IBOutlet()
     hourButton = objc.IBOutlet()
     hourProgress = objc.IBOutlet()
-    dayProgress = objc.IBOutlet()
-    hourField = objc.IBOutlet()
-    dayField = objc.IBOutlet()
     hourSegment = objc.IBOutlet()
+
+    # Day window
+    dayLabel = objc.IBOutlet()
+    dayField = objc.IBOutlet()
+    dayButton = objc.IBOutlet()
+    dayProgress = objc.IBOutlet()
+
+    # Sign up window
+    signUpWindow = objc.IBOutlet()
+    signUpEmailField = objc.IBOutlet()
+    signUpUsernameField = objc.IBOutlet()
+    signUpPasswordField = objc.IBOutlet()
+    signUpProgress = objc.IBOutlet()
+    signUpButton = objc.IBOutlet()
+    signUpEmailError = objc.IBOutlet()
+    signUpUsernameError = objc.IBOutlet()
+    signUpError = objc.IBOutlet()
+
+    # sync window
+    syncWindow = objc.IBOutlet()
+    usernameField = objc.IBOutlet()
+    passwordField = objc.IBOutlet()
+    syncProgress = objc.IBOutlet()
+    syncButton = objc.IBOutlet()
+    syncError = objc.IBOutlet()
+    statsButton = objc.IBOutlet()
+
+    # Miscellaneous items
+    helpText = objc.IBOutlet()
 
     # initializing the window
     def windowDidLoad(self):
@@ -38,6 +124,21 @@ class PreciousController(NSWindowController):
         # update displayed hour
         self.updateDisplayHour()
         self.updateDisplayDay()
+
+        # init the help text
+        self.setHelpText()
+
+
+    def setHelpText(self):
+        try:
+            # open the file to read data
+            fw = open('readme.txt', 'r')
+            # update help text
+            self.helpText.setStringValue_(fw.read())
+            # close the file
+            fw.close
+        except IOError:
+            print 'File readme.txt was not found'
     
     def reloadTime(self):
         self.curr_time = datetime.fromtimestamp(self.curr_timestamp)
@@ -373,119 +474,270 @@ class PreciousController(NSWindowController):
         Timer(3, self.endOfHour, ()).start()
         
     def syncData(self):
+        assert(user.token is not None)
+
         import requests
         
         print 'Syncing start...'
 
-        # TEMP author
-        # TODO: add author ID
-        author = 1
+        headers = {'Authorization': 'Token {0}'.format(user.token)}
+
+        url = SITE_URL + 'api/users?email={0}'.format(user.email)
+        print '[Authorized user] {0}'.format(url)
+        r = requests.get(url, headers=headers)
+        users = r.json()
+        user_data = users.pop()
+
+        url = SITE_URL + 'api/users/{0}'.format(user_data['id'])
+        print '[Authorized user detailed] {0}'.format(url)
+        r = requests.get(url, headers=headers)
+        user_data = r.json()
+        user.username = user_data['username']
+        user.email = user_data['email']
+        user.id = user_data['id']
 
         # 3 days ago datetime
-        dt = datetime.now() - datetime.timedelta(days=3)
+        dt = datetime.now() - timedelta(days=3)
 
         # request recently logged days
-        url = "http://127.0.0.1:8000/api/days?synced_after={0}".format(dt)
-        r = requests.get(url)
+        url = SITE_URL + 'api/days?synced_after={0}&author={1}'.format(dt, user.id)
+        r = requests.get(url, headers=headers)
         days = r.json()
         print url
         recent_days = []
         for day in days:
             recent_days.append(day['day'])
+        print repr(recent_days)
 
         # request recently logged hours data
-        url = "http://127.0.0.1:8000/api/hours?synced_after={0}".format(dt)
-        r = requests.get(url)
+        url = SITE_URL + 'api/hours?synced_after={0}&author={1}'.format(dt, user.id)
+        r = requests.get(url, headers=headers)
         hours = r.json()
         print url
         recent_hours = []
         for hour in hours:
             recent_hours.append(hour['hour'])
+        print repr(recent_hours)
 
-        try:
-            # open the file to read data from
-            fr = open('precious_mytime.js', 'r')
-            # load and decode the JSON data
-            json_data = json.load(fr)
-            # mydata = json.dumps(json_data)
-            # r = requests.post(url, data=mydata)
-            # print 'Syncing data posted...'
-            # print r.text
-            for year in json_data:
-                for month in json_data[year]:
-                    for day in json_data[year][month]:
+        # open the file to read data from
+        fr = open('precious_mytime.js', 'r')
+        # load and decode the JSON data
+        json_data = json.load(fr)
+        # mydata = json.dumps(json_data)
+        # r = requests.post(url, data=mydata)
+        # print 'Syncing data posted...'
+        # print r.text
+        for year in json_data:
+            for month in json_data[year]:
+                for day in json_data[year][month]:
 
-                        print '[Day API POST]'
+                    print '[Day API POST]'
 
-                        # construct the day data dict
-                        day_data = {'author':1, 'day':day, 'year':year, 'month':month}
-                        if 'reflection' in json_data[year][month][day]:
-                            day_data['day_text'] = json_data[year][month][day]['reflection']
+                    # construct the day data dict
+                    day_data = {'author':user.id, 'day':day, 'year':year, 'month':month}
+                    if 'reflection' in json_data[year][month][day]:
+                        day_data['day_text'] = json_data[year][month][day]['reflection']
 
-                        # if day has not been logged in the last 3 days - try to add a new one
-                        if day not in recent_days:
-                            url = 'http://127.0.0.1:8000/api/days/'
-                        # otherwise update the existing one
-                        else:
-                            url = "http://127.0.0.1:8000/api/days/?day={0}&month={1}&year={2}&author={3}".format(day,month,year,author)
-                            print url
-                            r = requests.get(url)
-                            this_day = r.json()
-                            this_day = recent_day.pop()
-                            # the PUT url
-                            url = 'http://127.0.0.1:8000/api/days/{0}'.format(this_day['id'])
-
-
+                    this_day = {}
+                    # if day has not been logged in the last 3 days - try to add a new one
+                    if day not in recent_days:
+                        url = SITE_URL + 'api/days/'
                         print url
-                        # day_data = json.dumps(day_data)
-                        # print day_data
-                        r = requests.post(url, data=day_data)
-                        print r.text
+                        # POST new day
+                        r = requests.post(url, data=day_data, headers=headers)
 
-                        # request day ID
-                        # TODO refactor into one function with above
-                        if not this_day:
-                            url = "http://127.0.0.1:8000/api/days/?day={0}&month={1}&year={2}&author={3}".format(day,month,year,author)
+
+                    # otherwise update the existing one
+                    else:
+                        url = SITE_URL + 'api/days/?day={0}&month={1}&year={2}&author={3}'.format(day,month,year,user.id)
+                        print url
+                        r = requests.get(url, header=headers)
+                        this_day = r.json()
+                        this_day = this_day.pop()
+                        # the PUT url
+                        url = SITE_URL + 'api/days/{0}'.format(this_day['id'])
+                        print url
+                        # PUT (update) the day
+                        r = requests.put(url, data=day_data, headers=headers)
+
+                    # Request result debug
+                    print r.text
+
+                    # request day ID
+                    # TODO refactor into one function with above
+                    if 'id' not in this_day:
+                        url = SITE_URL + 'api/days/?day={0}&month={1}&year={2}&author={3}'.format(day,month,year,user.id)
+                        print url
+                        r = requests.get(url, headers=headers)
+                        this_day = r.json()
+                        this_day = this_day.pop()
+
+                    for hour in json_data[year][month][day]:
+
+                        if hour != 'reflection':
+
+                            print '[Hour API POST]'
+
+                            hour_data = {'author':user.id, 'day':this_day['id'], 'hour':hour}
+
+                            if 'activity' in json_data[year][month][day][hour]:
+                                hour_data['hour_text'] = json_data[year][month][day][hour]['activity']
+                            if 'productive' in json_data[year][month][day][hour]:
+                                hour_data['productive'] = json_data[year][month][day][hour]['productive']
+
+                            url = SITE_URL + 'api/hours/'
+
                             print url
-                            r = requests.get(url)
-                            this_day = r.json()
-                            this_day = this_day.pop()
+                            # day_data = json.dumps(day_data)
+                            # print day_data
+                            r = requests.post(url, data=hour_data, headers=headers)
+                            print r.text
 
-                        for hour in json_data[year][month][day]:
+        # close the file
+        fr.close
+        # except IOError:
+        #     # file does not exist yet - set json_data to an empty dictionary
+        #     print 'File not found'
+        #     json_data = {}
 
-                            if hour != 'reflection':
+    ######
+    # AUTH
 
-                                print '[Hour API POST]'
+    @objc.IBAction
+    def authenticate_(self, sender):
+        # play intro sound
+        # sound = NSSound.soundNamed_('Frog')
+        # sound.play()
+        # start the spin
+        self.syncProgress.startAnimation_(self)
+        # hide the stats and result
+        self.syncError.setStringValue_('')
+        # self.statsButton.setEnabled_(False)
+        self.statsButton.setHidden_(True)
 
-                                hour_data = {'author':1, 'day':this_day['id'], 'hour':hour}
+        email = self.usernameField.stringValue()
+        password = self.passwordField.stringValue()
 
-                                if 'activity' in json_data[year][month][day][hour]:
-                                    hour_data['hour_text'] = json_data[year][month][day][hour]['activity']
-                                if 'productive' in json_data[year][month][day][hour]:
-                                    hour_data['productive'] = json_data[year][month][day][hour]['productive']
+        auth_success = False
+        print email
+        try:
+            user.authenticate(
+                email=email,
+                password=password)
+            auth_success = True
 
-                                url = "http://127.0.0.1:8000/api/hours/"
-                        
-                                print url
-                                # day_data = json.dumps(day_data)
-                                # print day_data
-                                r = requests.post(url, data=hour_data)
-                                print r.text
+        except ValueError, e:
+            print 'Could not authorize'
+            print e
+            self.syncError.setTextColor_(NSColor.redColor())
+            self.syncError.setStringValue_(str(e))
+            # stop the spin
+            self.syncProgress.stopAnimation_(self)
 
-            # close the file
-            fr.close
-        except IOError:
-            # file does not exist yet - set json_data to an empty dictionary
-            print 'File not found'
-            json_data = {}
-    
+        # if authenticated - sync data
+        if user.token is not None and auth_success:
+            try:
+                self.syncData()
+                # success!
+                self.syncError.setTextColor_(NSColor.blackColor())
+                self.syncError.setStringValue_('All synced.')
+                # play success sound
+                sound = NSSound.soundNamed_('Pop')
+                sound.play()
+                # self.statsButton.setEnabled_(True)
+                self.statsButton.setHidden_(False)
+                # stop the spin
+                self.syncProgress.stopAnimation_(self)
+            except Exception, e:
+                print 'Could not sync: {0}'.format(e)
+                self.syncError.setTextColor_(NSColor.redColor())
+                self.syncError.setStringValue_('Could not sync')
+                # stop the spin
+                self.syncProgress.stopAnimation_(self)
+
+
+    @objc.IBAction
+    def signUp_(self, sender):
+        # start the spin
+        self.signUpProgress.startAnimation_(self)
+
+        email = self.signUpEmailField.stringValue()
+        username = self.signUpUsernameField.stringValue()
+        password = self.signUpPasswordField.stringValue()
+
+        self.signUpEmailError.setStringValue_('')
+        self.signUpUsernameError.setStringValue_('')
+        self.signUpError.setStringValue_('')
+
+        print email
+        try:
+            user.create(
+                email=email,
+                username=username,
+                password=password
+            )
+            # auth after
+            # self.user.authenticate(
+            #     email=email,
+            #     password=password
+            # )
+            # self.user.email = email
+            # self.user.password = password
+
+
+            # stop the spin
+            self.signUpProgress.stopAnimation_(self)
+            # minimize the window and show login
+            self.signUpWindow.close()
+            self.syncWindow.makeKeyAndOrderFront_(self)
+            # fill in the email field
+            self.usernameField.setStringValue_(email)
+            # self.passwordField.setStringValue(password)
+
+        except ValueError, e:
+            print e
+            # email error
+            if e[0]:
+                # self.signUpEmailField.setTextColor_(NSColor.redColor())
+                self.signUpEmailError.setStringValue_(str(e[0]))
+            # username error
+            if e[1]:
+                # self.signUpUsernameField.setTextColor_(NSColor.redColor())
+                self.signUpUsernameError.setStringValue_(str(e[1]))
+            # general error conclusion
+            print 'Could not create a new account'
+            self.signUpError.setStringValue_('Could not create an account')
+            # stop the spin
+            self.signUpProgress.stopAnimation_(self)
+
+
+    @objc.IBAction
+    def openStats_(self, sender):
+        print 'Opening stats...'
+        sharedWorkspace = NSWorkspace.sharedWorkspace()
+        sharedWorkspace.openURL_(NSURL.URLWithString_(SITE_URL))
+
+    @objc.IBAction
+    def openPortfolio_(self, sender):
+        print 'Opening portfolio...'
+        sharedWorkspace = NSWorkspace.sharedWorkspace()
+        sharedWorkspace.openURL_(NSURL.URLWithString_('http://www.antonvino.com'))
+
+    @objc.IBAction
+    def openWebApp_(self, sender):
+        print 'Opening web app...'
+        sharedWorkspace = NSWorkspace.sharedWorkspace()
+        sharedWorkspace.openURL_(NSURL.URLWithString_('http://www.antonvino.com/precious/'))
+
+
 if __name__ == "__main__":
     app = NSApplication.sharedApplication()
     
-    
-    # Initiate the contrller with a XIB
+    # Initiate the controller with a XIB
     viewController = PreciousController.alloc().initWithWindowNibName_("Precious")
-    
+
+    user = PreciousUser()
+
     # Show the window
     viewController.showWindow_(viewController)
     # viewController.badge = app.dockTile()
