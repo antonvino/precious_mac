@@ -388,7 +388,7 @@ DQ
                     </segmentedControl>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="444" y="-14"/>
+            <point key="canvasLocation" x="478" y="144"/>
         </window>
         <window title="Every day is a gift" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="2JC-pM-ke4">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
@@ -473,22 +473,22 @@ DQ
         <window title="Sync" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="6b0-Xv-CQW" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="864" y="902" width="248" height="189"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
+            <rect key="contentRect" x="864" y="902" width="248" height="209"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <view key="contentView" id="gLW-iY-YvK">
-                <rect key="frame" x="0.0" y="0.0" width="248" height="189"/>
+                <rect key="frame" x="-5" y="0.0" width="248" height="209"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Smb-4K-aGG">
-                        <rect key="frame" x="49" y="126" width="150" height="22"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="E-mail" bezelStyle="round" id="HL7-eZ-Cg5">
+                        <rect key="frame" x="49" y="154" width="150" height="22"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="your e-mail" bezelStyle="round" id="HL7-eZ-Cg5">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H9p-wH-UZa">
-                        <rect key="frame" x="49" y="64" width="150" height="25"/>
+                        <rect key="frame" x="49" y="61" width="150" height="25"/>
                         <buttonCell key="cell" type="roundTextured" title="Sign in and sync" bezelStyle="texturedRounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="o4i-1e-cFW">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -501,11 +501,11 @@ DQ
                         </connections>
                     </button>
                     <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="CSB-14-97f">
-                        <rect key="frame" x="25" y="69" width="16" height="16"/>
+                        <rect key="frame" x="25" y="66" width="16" height="16"/>
                     </progressIndicator>
                     <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3QW-5o-Nt8">
-                        <rect key="frame" x="49" y="96" width="150" height="22"/>
-                        <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Password" usesSingleLineMode="YES" bezelStyle="round" id="Gme-41-ox0">
+                        <rect key="frame" x="49" y="107" width="150" height="22"/>
+                        <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="your password" usesSingleLineMode="YES" bezelStyle="round" id="Gme-41-ox0">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -515,7 +515,7 @@ DQ
                         </secureTextFieldCell>
                     </secureTextField>
                     <button hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7JJ-8V-p5x">
-                        <rect key="frame" x="58" y="19" width="131" height="19"/>
+                        <rect key="frame" x="59" y="13" width="131" height="19"/>
                         <buttonCell key="cell" type="roundRect" title="Check your stats!" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TUa-Bh-r6H">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="cellTitle"/>
@@ -525,16 +525,42 @@ DQ
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vrK-y5-qtR">
-                        <rect key="frame" x="18" y="38" width="212" height="21"/>
+                        <rect key="frame" x="18" y="37" width="212" height="21"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="fPI-DE-oAv">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oay-za-sQK">
+                        <rect key="frame" x="47" y="177" width="55" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="E-mail:" id="vNh-KC-ktt">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Z9-Fe-eOy">
+                        <rect key="frame" x="47" y="131" width="68" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Password:" id="xVm-fP-t60">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button toolTip="Recover your password" verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vkb-KE-DbN">
+                        <rect key="frame" x="177" y="106" width="25" height="25"/>
+                        <buttonCell key="cell" type="help" bezelStyle="helpButton" imagePosition="overlaps" alignment="center" controlSize="mini" state="on" borderStyle="border" inset="2" id="Ryd-XK-RRr">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="openPasswordReset:" target="-2" id="QcQ-CI-GZS"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="482" y="-34.5"/>
+            <point key="canvasLocation" x="329" y="164.5"/>
         </window>
         <window title="Create account" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="q6k-J6-Qgh" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
@@ -558,6 +584,9 @@ DQ
                         <buttonCell key="cell" type="roundTextured" title="Create" bezelStyle="texturedRounded" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="qxC-Zy-MJ8">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
                         </buttonCell>
                         <connections>
                             <action selector="signUp:" target="-2" id="F9B-kG-9YC"/>
@@ -624,7 +653,7 @@ DQ
         <window title="Help" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="gAk-kW-6Qv">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES" fullSizeContentView="YES"/>
             <rect key="contentRect" x="650" y="303" width="646" height="540"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <view key="contentView" id="9eJ-B2-EyO">
                 <rect key="frame" x="0.0" y="0.0" width="646" height="540"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -644,7 +673,7 @@ DQ
         <window title="About" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="Jrc-4H-MSB">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES" fullSizeContentView="YES"/>
             <rect key="contentRect" x="650" y="303" width="356" height="213"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
             <view key="contentView" id="8eU-yP-yZg">
                 <rect key="frame" x="0.0" y="0.0" width="356" height="213"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -669,7 +698,7 @@ DQ
                         <rect key="frame" x="85" y="152" width="187" height="19"/>
                         <buttonCell key="cell" type="roundRect" title="Visit the web app" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="j7H-6a-0DL">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="titleBar" size="12"/>
+                            <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
                             <action selector="openWebApp:" target="-2" id="A53-fX-OZ7"/>
@@ -679,7 +708,7 @@ DQ
                         <rect key="frame" x="113" y="19" width="131" height="19"/>
                         <buttonCell key="cell" type="roundRect" title="Visit my website" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="DOc-MY-TSb">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="titleBar" size="12"/>
+                            <font key="font" metaFont="cellTitle"/>
                         </buttonCell>
                         <connections>
                             <action selector="openPortfolio:" target="-2" id="YCE-fC-JZL"/>

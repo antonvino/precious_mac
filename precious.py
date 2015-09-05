@@ -30,7 +30,7 @@ class PreciousUser():
             self.token = token['token']
             self.email = auth_data['username']
         else:
-            raise ValueError('E-mail or password do not match')
+            raise ValueError('E-mail or password do not match.')
 
     def create(self, email, username, password):
         print 'creating an account...'
@@ -339,7 +339,7 @@ class PreciousController(NSWindowController):
             fr.close
         except IOError:
             # file does not exist yet - set json_data to an empty dictionary
-            print 'File not found'
+            print 'Could not open the file precious_mytime.js'
             json_data = {}
         
         # this accounts for the problem when year/month/day have not been set yet in the JSON file
@@ -373,12 +373,15 @@ class PreciousController(NSWindowController):
             pp = pprint.PrettyPrinter(indent=4)
             pp.pprint(json_data[year][month][day])        
 
-        # open the file to rewrite data
-        fw = open('precious_mytime.js', 'w')
-        # JSON dump of the data
-        json.dump(json_data, fw)
-        # close the file
-        fw.close
+        try:
+            # open the file to rewrite data
+            fw = open('precious_mytime.js', 'w')
+            # JSON dump of the data
+            json.dump(json_data, fw)
+            # close the file
+            fw.close
+        except IOError:
+            print 'Could not open the file precious_mytime.js'
 
     # set default data
     def clearData(self):
@@ -651,7 +654,7 @@ class PreciousController(NSWindowController):
             except Exception, e:
                 print 'Could not sync: {0}'.format(e)
                 self.syncError.setTextColor_(NSColor.redColor())
-                self.syncError.setStringValue_('Could not sync')
+                self.syncError.setStringValue_('Could not sync.')
                 # stop the spin
                 self.syncProgress.stopAnimation_(self)
 
@@ -728,6 +731,12 @@ class PreciousController(NSWindowController):
         print 'Opening web app...'
         sharedWorkspace = NSWorkspace.sharedWorkspace()
         sharedWorkspace.openURL_(NSURL.URLWithString_('http://www.antonvino.com/precious/'))
+
+    @objc.IBAction
+    def openPasswordReset_(self, sender):
+        print 'Opening web app password reset...'
+        sharedWorkspace = NSWorkspace.sharedWorkspace()
+        sharedWorkspace.openURL_(NSURL.URLWithString_(SITE_URL + 'accounts/password-reset/'))
 
 
 if __name__ == "__main__":
