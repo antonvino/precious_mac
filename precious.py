@@ -3,13 +3,6 @@ Main app controller file
 Uses PyObjC wrappers
 Uses Requests (communicates with a Django web app)
 
-Icon note:
-Star Coin Icon is taken from http://www.cliparthut.com/super-mario-star-coins-clipart-AnSSX1.html (Free to use ClipArt)
-The icon represents how precious the time is and also implies that the effect of the app usage will be similar
-to that of the coin in Super Mario, as the productivity will increase dramatically
-The app has nothing to do with Nintendo and is used only for fun
-In case such usage violates Nintendo's rights, the author will use a different icon
-
 Author:
 The original author of the Precious app is Anton Vinokurov (www.antonvino.com)
 """

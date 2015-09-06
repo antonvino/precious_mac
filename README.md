@@ -7,3 +7,14 @@ There is a web app that outputs the data that is pushed to it via this app. The 
 
 # How to contribute
 Feel free to contribute to the app and do a pull request if you want to work on bugs or implement new features. I'm trying to keep the Mac OS X app minimal, so will not approve any fancy upgrades. Feel free to create your own app based on my code and if it works well we can figure out the syncing to the web side as well.
+
+# py2app commands
+Alias build:
+python setup.py py2app -A
+
+Launch to test:
+dist/Precious.app/Contents/MacOS/Precious
+
+Dist build:
+python setup.py py2app
+
