@@ -94,8 +94,14 @@
                                     <action selector="makeKeyAndOrderFront:" target="6b0-Xv-CQW" id="itA-co-Hx0"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Sync all data (slow)..." id="wt1-Rt-Umy">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="syncAll:" target="-2" id="1lt-Ag-Ncw"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="nyX-mi-2Eb"/>
-                            <menuItem title="Create new account..." id="Was-JA-tGl">
+                            <menuItem title="Create a new account..." id="Was-JA-tGl">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="makeKeyAndOrderFront:" target="q6k-J6-Qgh" id="QKZ-qV-58L"/>
@@ -297,7 +303,7 @@
             <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="817" y="598" width="400" height="250"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="o2l-ka-yFY">
                 <rect key="frame" x="0.0" y="0.0" width="400" height="250"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -394,7 +400,7 @@ DQ
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="803" y="233" width="400" height="250"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="YEx-Jj-zah">
                 <rect key="frame" x="0.0" y="0.0" width="400" height="250"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -474,7 +480,7 @@ DQ
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="1000" y="900" width="248" height="209"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="gLW-iY-YvK">
                 <rect key="frame" x="-5" y="0.0" width="248" height="209"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -566,7 +572,7 @@ DQ
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="600" y="900" width="310" height="209"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="Gut-vw-PtP">
                 <rect key="frame" x="0.0" y="0.0" width="310" height="209"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -644,14 +650,14 @@ DQ
         </window>
         <window title="Help" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="gAk-kW-6Qv">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES" fullSizeContentView="YES"/>
-            <rect key="contentRect" x="650" y="303" width="646" height="540"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="contentRect" x="650" y="303" width="646" height="584"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="9eJ-B2-EyO">
-                <rect key="frame" x="0.0" y="0.0" width="646" height="540"/>
+                <rect key="frame" x="0.0" y="-1" width="646" height="584"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Q6F-ef-d7V">
-                        <rect key="frame" x="50" y="53" width="546" height="434"/>
+                        <rect key="frame" x="50" y="33" width="546" height="498"/>
                         <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" alignment="left" title="Help text" id="kJt-sW-6gG">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -660,12 +666,12 @@ DQ
                     </textField>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="461" y="155"/>
+            <point key="canvasLocation" x="461" y="177"/>
         </window>
         <window title="About" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="Jrc-4H-MSB">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES" fullSizeContentView="YES"/>
             <rect key="contentRect" x="650" y="303" width="356" height="213"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="8eU-yP-yZg">
                 <rect key="frame" x="0.0" y="0.0" width="356" height="213"/>
                 <autoresizingMask key="autoresizingMask"/>
