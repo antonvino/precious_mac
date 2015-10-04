@@ -2,3 +2,7 @@ build
 dist
 *.idea
 .idea
+.eggs
+dist
+build
+blog
