@@ -6,3 +6,6 @@ dist
 dist
 build
 blog
+precious_mytime_backup.js
+clean_dist
+Info.plist

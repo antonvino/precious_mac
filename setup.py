@@ -11,11 +11,25 @@ The original author of the Precious app is Anton Vinokurov (www.antonvino.com)
 from setuptools import setup
 
 APP = ['Precious.py']
-DATA_FILES = ['Precious.xib']
+DATA_FILES = ['Precious.xib', 'faq.txt', 'faq.html', 'precious_mytime.js', 'precious_mysettings.js']
 OPTIONS = {
     'argv_emulation': True,
     'iconfile': 'precious.icns',
-    'includes': ['requests']
+    'includes': ['requests'],
+    'plist': dict(
+        CFBundleName='Precious',
+        CFBundlePackageType='APPL',
+        CFBundleGetInfoString='Precious App - time management app',
+        CFBundleShortVersionString='1.0b',
+        CFBundleVersion='1',
+        NSHumanReadableCopyright='(c) Anton Vinokurov 2015',
+        CFBundleDisplayName='Precious',
+        CFBundleExecutable='Precious',
+        CFBundleDevelopmentRegion='en-UK',
+        CFBundleIdentifier='com.mytimeisprecious',
+        CFBundleIconFile='precious.icns',
+        CFAppleHelpAnchor='faq'
+    )
 }
 
 setup(

@@ -19,6 +19,7 @@
                 <outlet property="newPasswordField" destination="RC5-M0-h3u" id="Amo-rj-DHX"/>
                 <outlet property="newUsernameField" destination="5L1-ov-z3Y" id="jGQ-z0-xHV"/>
                 <outlet property="passwordField" destination="3QW-5o-Nt8" id="p1q-D5-3s6"/>
+                <outlet property="settMenuActivate" destination="a4Y-MG-TBG" id="rU9-6D-Nc8"/>
                 <outlet property="signUpButton" destination="lus-Ub-Qmf" id="kge-HN-o6J"/>
                 <outlet property="signUpEmailError" destination="dan-lq-WXx" id="NcN-7x-dfd"/>
                 <outlet property="signUpEmailField" destination="5L1-ov-z3Y" id="Qpn-Gh-oO0"/>
@@ -48,11 +49,19 @@
                             <menuItem title="About Precious" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="makeKeyAndOrderFront:" target="Jrc-4H-MSB" id="Yw1-Oq-Img"/>
+                                    <action selector="orderFrontStandardAboutPanel:" target="-1" id="uDu-g7-0YI"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" hidden="YES" keyEquivalent="," id="BOF-NM-1cW"/>
+                            <menuItem title="Preferences:" enabled="NO" id="v7K-b4-Ogg">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Activate app every hour" state="on" indentationLevel="1" id="a4Y-MG-TBG">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="settActivate:" target="-2" id="Tq9-zQ-jGS"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
                             <menuItem title="Hide Precious" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
@@ -141,6 +150,9 @@
                                 </connections>
                             </menuItem>
                             <menuItem title="Delete" id="84u-yM-HFB">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CA
+</string>
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="delete:" target="-1" id="5ZU-fm-zs9"/>
@@ -289,9 +301,16 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="How does this app work?" keyEquivalent="?" id="FKE-Sm-Kum">
+                            <menuItem title="How does this app work?" id="362-wC-Rzi">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="makeKeyAndOrderFront:" target="gAk-kW-6Qv" id="hbf-sc-L6i"/>
+                                    <action selector="makeKeyAndOrderFront:" target="gAk-kW-6Qv" id="koQ-pF-mDp"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Contact the author" id="FKE-Sm-Kum">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="makeKeyAndOrderFront:" target="Jrc-4H-MSB" id="SDd-SZ-TtE"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -520,6 +539,14 @@ DQ
                             </allowedInputSourceLocales>
                         </secureTextFieldCell>
                     </secureTextField>
+                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vrK-y5-qtR">
+                        <rect key="frame" x="18" y="8" width="212" height="50"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Error." id="fPI-DE-oAv">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <button hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7JJ-8V-p5x">
                         <rect key="frame" x="59" y="13" width="131" height="19"/>
                         <buttonCell key="cell" type="roundRect" title="Check your stats!" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TUa-Bh-r6H">
@@ -530,14 +557,6 @@ DQ
                             <action selector="openStats:" target="-2" id="GRZ-IT-3ak"/>
                         </connections>
                     </button>
-                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vrK-y5-qtR">
-                        <rect key="frame" x="18" y="37" width="212" height="21"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Error." id="fPI-DE-oAv">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oay-za-sQK">
                         <rect key="frame" x="47" y="177" width="55" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="E-mail:" id="vNh-KC-ktt">

@@ -13,7 +13,8 @@ import json, os, signal, time
 from datetime import datetime, timedelta, date
 
 # Precious Web site URL
-SITE_URL = 'http://127.0.0.1:8000/'
+SITE_URL = 'http://mytimeisprecious.com/'
+#SITE_URL = 'http://127.0.0.1:8000/'
 
 class PreciousUser():
 
@@ -243,6 +244,8 @@ class PreciousData():
     def sync(self, all = False):
         """
         Syncs the data with Web API of Precious Web
+        Loads data from local JSON file
+        Saves data on the web
         Using Python Requests
         Requires user instance to be authenticated (i.e. to have a valid token)
         Syncs all data only if all=True, otherwise syncs last 3 days
@@ -253,13 +256,16 @@ class PreciousData():
         import requests
 
         print '[Data] Syncing start...'
+        # what has been synced
+        word = 'All data'
 
-        headers = {'Authorization': 'Token {0}'.format(user.token)}
+        headers = {'Authorization': 'Token {0}'.format(user.token), 'user-agent': 'precious-app/1.0.0'}
 
         url = SITE_URL + 'api/users?email={0}'.format(user.email)
         print '[API] Authorized user {0}'.format(url)
         r = requests.get(url, headers=headers)
         users = r.json()
+        print r.text
         user_data = users.pop()
 
         url = SITE_URL + 'api/users/{0}'.format(user_data['id'])
@@ -270,126 +276,161 @@ class PreciousData():
         user.email = user_data['email']
         user.id = user_data['id']
 
-        # 3 days ago datetime
-        dt = datetime.now() - timedelta(days=3)
+        # check if the new version of the app
+        # needs loading previous data from the server
+        if precious_settings.is_new_version is True:
+            self.back_sync()
+            word = 'Old data'
+        # otherwise proceed with the normal sync
+        # TODO: not a very concise way of checking this
+        else:
+            # 3 days ago datetime
+            dt = datetime.now() - timedelta(days=3)
 
-        # request recently logged days
-        url = SITE_URL + 'api/days?synced_after={0}&author={1}'.format(dt, user.id)
-        r = requests.get(url, headers=headers)
-        days = r.json()
-        print '[API] {0}'.format(url)
-        recent_days = []
-        for day in days:
-            recent_days.append(day['date'])
-        # print repr(recent_days)
+            # request recently logged days
+            url = SITE_URL + 'api/days?synced_after={0}&author={1}'.format(dt, user.id)
+            r = requests.get(url, headers=headers)
+            days = r.json()
+            print '[API] {0}'.format(url)
+            recent_days = []
+            for day in days:
+                recent_days.append(day['date'])
+                # request recently logged hours data
+                url = SITE_URL + 'api/hours?synced_after={0}&day={1}&author={2}'.format(dt, day['id'], user.id)
+                r = requests.get(url, headers=headers)
+                hours = r.json()
+                print '[API] {0}'.format(url)
+                recent_hours = []
+                for hour in hours:
+                    recent_hours.append('{0}-{1}'.format(day['date'],hour['hour']))
+                # print repr(recent_hours)
+            # print repr(recent_days)
 
-        # request recently logged hours data
-        url = SITE_URL + 'api/hours?synced_after={0}&author={1}'.format(dt, user.id)
-        r = requests.get(url, headers=headers)
-        hours = r.json()
-        print '[API] {0}'.format(url)
-        recent_hours = []
-        for hour in hours:
-            recent_hours.append('{0}-{1}'.format(day['date'],hour['hour']))
-        # print repr(recent_hours)
+            # open the file to read data from
+            fr = open('precious_mytime.js', 'r')
+            # load and decode the JSON data
+            json_data = json.load(fr)
 
-        # open the file to read data from
-        fr = open('precious_mytime.js', 'r')
-        # load and decode the JSON data
-        json_data = json.load(fr)
+            # flag and arrays not to redo the already synced stuff
+            # in case the connection breaks and the loop has to restart
+            all_done = False
+            days_done = []
+            hours_done = []
+            # we repeat this loop until all is done (this may take a while)
+            # and frankly it may not be the most elegant way of doing it
+            # but as it's a one off thing you'd do for full sync - it's not too bad
+            # for 3 past days sync it won't be needed often
+            while not all_done:
+                try:
+                    print 'Wait for 3 seconds...'
+                    time.sleep(3)
+                    for year in json_data:
+                        for month in json_data[year]:
+                            for day in json_data[year][month]:
 
-        for year in json_data:
-            for month in json_data[year]:
-                for day in json_data[year][month]:
+                                day_date = date(day=int(day), month=int(month), year=int(year))
 
-                    print '[API] Day POST/PUT'
+                                # we only sync the data, that is 3 days old or less
+                                # if all==True - we sync all data
+                                if all == True or day_date >= dt.date():
+                                    # do this only if the day has not been synced in the previous loop
+                                    if str(day_date) not in days_done:
+                                        print '[API] Day POST/PUT'
+                                        # construct the day data dict
+                                        day_data = {'author':user.id, 'date':day_date}
+                                        if 'reflection' in json_data[year][month][day]:
+                                            day_data['day_text'] = json_data[year][month][day]['reflection']
 
-                    day_date = date(day=int(day), month=int(month), year=int(year))
+                                        this_day = {}
+                                        # if day has not been logged in the last 3 days - try to add a new one
+                                        if str(day_date) not in recent_days:
+                                            url = SITE_URL + 'api/days/'
+                                            print '[API] POST {0}'.format(url)
+                                            # POST new day
+                                            r = requests.post(url, data=day_data, headers=headers)
 
-                    # we only sync the data, that is 3 days old or less
-                    # if all==True - we sync all data
-                    if all == True or day_date >= dt.date():
+                                        # otherwise update the existing one
+                                        else:
+                                            url = SITE_URL + 'api/days/?date={0}&author={1}'.format(day_date, user.id)
+                                            print '[API] GET {0}'.format(url)
+                                            r = requests.get(url, headers=headers)
+                                            this_day = r.json()
+                                            this_day = this_day.pop()
+                                            # the PUT url
+                                            url = SITE_URL + 'api/days/{0}/'.format(this_day['id'])
+                                            print '[API] PUT {0}'.format(url)
+                                            # PUT (update) the day
+                                            r = requests.put(url, data=day_data, headers=headers)
 
-                        # construct the day data dict
-                        day_data = {'author':user.id, 'date':day_date}
-                        if 'reflection' in json_data[year][month][day]:
-                            day_data['day_text'] = json_data[year][month][day]['reflection']
+                                        # Request result debug
+                                        # print r.text
 
-                        this_day = {}
-                        # if day has not been logged in the last 3 days - try to add a new one
-                        if str(day_date) not in recent_days:
-                            url = SITE_URL + 'api/days/'
-                            print '[API] POST {0}'.format(url)
-                            # POST new day
-                            r = requests.post(url, data=day_data, headers=headers)
+                                        # request day ID
+                                        # TODO refactor into one function with above
+                                        if 'id' not in this_day:
+                                            url = SITE_URL + 'api/days/?date={0}&author={1}'.format(day_date, user.id)
+                                            print '[API] GET {0}'.format(url)
+                                            r = requests.get(url, headers=headers)
+                                            this_day = r.json()
+                                            this_day = this_day.pop()
 
-                        # otherwise update the existing one
-                        else:
-                            url = SITE_URL + 'api/days/?date={0}&author={1}'.format(day_date, user.id)
-                            print url
-                            r = requests.get(url, headers=headers)
-                            this_day = r.json()
-                            this_day = this_day.pop()
-                            # the PUT url
-                            url = SITE_URL + 'api/days/{0}/'.format(this_day['id'])
-                            print '[API] PUT {0}'.format(url)
-                            # PUT (update) the day
-                            r = requests.put(url, data=day_data, headers=headers)
+                                        for hour in json_data[year][month][day]:
 
-                        # Request result debug
-                        print r.text
+                                            if hour != 'reflection':
 
-                        # request day ID
-                        # TODO refactor into one function with above
-                        if 'id' not in this_day:
-                            url = SITE_URL + 'api/days/?date={0}&author={1}'.format(day_date, user.id)
-                            print '[API] GET {0}'.format(url)
-                            r = requests.get(url, headers=headers)
-                            this_day = r.json()
-                            this_day = this_day.pop()
+                                                print '[API] Hour POST/PUT'
 
-                        for hour in json_data[year][month][day]:
+                                                hour_data = {'author':user.id, 'day':this_day['id'], 'hour':hour}
 
-                            if hour != 'reflection':
+                                                if 'activity' in json_data[year][month][day][hour]:
+                                                    hour_data['hour_text'] = json_data[year][month][day][hour]['activity']
+                                                if 'productive' in json_data[year][month][day][hour]:
+                                                    hour_data['productive'] = json_data[year][month][day][hour]['productive']
 
-                                print '[API] Hour POST/PUT'
+                                                hour_date = '{0}-{1}'.format(day_date, hour)
+                                                # do this only if hour has not been synced in the previous loop
+                                                if hour_date not in hours_done:
+                                                    # if hour has not been logged in the last 3 days - try to add a new one
+                                                    if hour_date not in recent_hours:
+                                                        url = SITE_URL + 'api/hours/'
+                                                        print '[API] POST {0}'.format(url)
+                                                        # POST new hour
+                                                        r = requests.post(url, data=hour_data, headers=headers)
 
-                                hour_data = {'author':user.id, 'day':this_day['id'], 'hour':hour}
+                                                    # otherwise update the existing one
+                                                    else:
+                                                        url = SITE_URL + 'api/hours/?day={0}&hour={1}&author={2}'.format(this_day['id'], hour, user.id)
+                                                        print '[API] GET {0}'.format(url)
+                                                        r = requests.get(url, headers=headers)
+                                                        this_hour = r.json()
+                                                        this_hour = this_hour.pop()
+                                                        # the PUT url
+                                                        url = SITE_URL + 'api/hours/{0}/'.format(this_hour['id'])
+                                                        print '[API] PUT {0}'.format(url)
+                                                        # PUT (update) the hour
+                                                        r = requests.put(url, data=hour_data, headers=headers)
 
-                                if 'activity' in json_data[year][month][day][hour]:
-                                    hour_data['hour_text'] = json_data[year][month][day][hour]['activity']
-                                if 'productive' in json_data[year][month][day][hour]:
-                                    hour_data['productive'] = json_data[year][month][day][hour]['productive']
+                                                    # Request result debug
+                                                    # print r.text
 
-                                hour_date = '{0}-{1}'.format(day_date, hour)
-                                # if hour has not been logged in the last 3 days - try to add a new one
-                                if hour_date not in recent_hours:
-                                    url = SITE_URL + 'api/hours/'
-                                    print '[API] POST {0}'.format(url)
-                                    # POST new hour
-                                    r = requests.post(url, data=hour_data, headers=headers)
+                                                    # save the hour in hours done
+                                                    hours_done.append(hour_date)
 
-                                # otherwise update the existing one
-                                else:
-                                    url = SITE_URL + 'api/hours/?day={0}&hour={1}&author={2}'.format(this_day['id'], hour, user.id)
-                                    print url
-                                    r = requests.get(url, headers=headers)
-                                    this_hour = r.json()
-                                    this_hour = this_hour.pop()
-                                    # the PUT url
-                                    url = SITE_URL + 'api/hours/{0}/'.format(this_hour['id'])
-                                    print '[API] PUT {0}'.format(url)
-                                    # PUT (update) the hour
-                                    r = requests.put(url, data=hour_data, headers=headers)
+                                        # END FOR "for all hours"
+                                        # save the day in days_done
+                                        days_done.append(day_date)
 
-                                # Request result debug
-                                print r.text
+                    # END FOR "for all days"
+                    # close the file
+                    fr.close
+                    # set the flag - loop will not be entered anymore
+                    all_done = True
 
-        # close the file
-        fr.close
-
+                except Exception, e:
+                    print '[API] Error in sync loop: {0}'.format(e)
+            # END WHILE
+        # END ELSE
         # return what has been synced
-        word = 'All data'
         if not all:
             word = 'Past 3 days'
         return word
@@ -397,6 +438,111 @@ class PreciousData():
         #     # file does not exist yet - set json_data to an empty dictionary
         #     print 'File not found'
         #     json_data = {}
+
+    def back_sync(self):
+        """
+        Loads the data with Web API of Precious Web
+        Saves the data in local JSON file
+        Using Python Requests
+        Requires user instance to be authenticated (i.e. to have a valid token)
+        """
+        assert(user.token is not None)
+        assert(user.email is not None)
+
+        import requests
+
+        print '[Data] Syncing start...'
+
+        headers = {'Authorization': 'Token {0}'.format(user.token), 'user-agent': 'precious-app/1.0.0'}
+
+        # request all logged days
+        url = SITE_URL + 'api/days?author={0}'.format(user.id)
+        r = requests.get(url, headers=headers)
+        days = r.json()
+        if len(days) > 0:
+            for day_data in days:
+                day_date = datetime.strptime(day_data['date'], '%Y-%m-%d')
+                year = day_date.year
+                month = day_date.month
+                day = day_date.day
+                print 'day:{0}-{1}-{2}'.format(day, month, year)
+
+                # log the day locally
+                precious_data.save(
+                type='day',
+                reflection=day_data['day_text'],
+                year=year,
+                month=month,
+                day=day)
+
+                # for each day get hours
+                url = SITE_URL + 'api/hours?author={0}&day={1}'.format(user.id, day_data['id'])
+                r = requests.get(url, headers=headers)
+                hours = r.json()
+                for hour in hours:
+                    # log the hour locally
+                    precious_data.save(
+                        type='hour',
+                        productive=hour['productive'],
+                        activity=hour['hour_text'],
+                        year=year,
+                        month=month,
+                        day=day,
+                        hour=hour['hour'])
+
+        # if everything went successfully
+        precious_settings.is_new_version = False
+        precious_settings.save()
+
+
+class PreciousSettings():
+
+    def __init__(self):
+        pass
+
+    def load(self):
+        """
+        Loads the settings data from a JSON file
+        """
+        # getting the system date and time if they are not set
+        try:
+            # open the file to read data from
+            fr = open('precious_mysettings.js', 'r')
+            # load and decode the JSON data
+            json_data = json.load(fr)
+
+            # is it a new app version?
+            self.is_new_version = bool(json_data['is_new_version'])
+            # activate app each hour or not?
+            self.activate_each_hour = bool(json_data['activate_each_hour'])
+
+            print '[Data] Settings loaded'
+
+            # close the file
+            fr.close
+        except IOError:
+            # file does not exist yet - set json_data to an empty dictionary
+            print '[Data:Error] Could not open the file precious_mysettings.js'
+            #json_data = {}
+
+    def save(self):
+        """
+        Saves the settings data into a JSON file
+        """
+        json_data = {
+            'is_new_version': int(self.is_new_version),
+            'activate_each_hour': int(self.activate_each_hour),
+        }
+        try:
+            # open the file to rewrite data
+            fw = open('precious_mysettings.js', 'w')
+            # JSON dump of the data
+            json.dump(json_data, fw)
+            print '[Data] Settings saved'
+            # close the file
+            fw.close
+        except IOError:
+            print '[Data:Error] Could not open the file precious_mysettings.js'
 
 
 class PreciousController(NSWindowController):
@@ -435,6 +581,7 @@ class PreciousController(NSWindowController):
 
     # Miscellaneous items
     helpText = objc.IBOutlet()
+    settMenuActivate = objc.IBOutlet()
 
     def windowDidLoad(self):
         """
@@ -472,6 +619,25 @@ class PreciousController(NSWindowController):
         self.pending = 0
         self.pending_hours = []
         self.setPyTimer()
+
+        # User PREFERENCES / SETTINGS
+        precious_settings.load()
+        # update settings states in the menu
+        self.settMenuActivate.setState_(precious_settings.activate_each_hour)
+        # check if it's the new version of the app
+        if precious_settings.is_new_version is True:
+            # bring sync window up
+            self.requireSync()
+
+    def requireSync(self):
+        """
+        Brings sync window up and asks to re-sync
+        It's a cap until the re-sync is done
+        """
+        self.syncWindow.makeKeyAndOrderFront_(self)
+        self.syncError.setStringValue_('Please log in to re-sync old data')
+        self.syncError.setHidden_(False)
+        self.syncAllFlag = True
 
     def setHelpText(self):
         """
@@ -572,8 +738,12 @@ class PreciousController(NSWindowController):
         now = datetime.now()
         if(now.minute == 59):
             print '[Timer] End of hour'
-            # Bring app to top
-            NSApp.activateIgnoringOtherApps_(True)
+
+            # if activate each hour is On - bring the app to attention
+            if precious_settings.activate_each_hour is True:
+                # Bring app to top
+                NSApp.activateIgnoringOtherApps_(True)
+
             # is this hour logged?
             reflection, activity, productive = precious_data.load(year = now.year, month = now.month, day = now.day, hour = now.hour)
             pending_hour = '{0}-{1}-{2}-{3}'.format(now.year, now.month, now.day, now.hour)
@@ -656,6 +826,10 @@ class PreciousController(NSWindowController):
         Makes the hour label black
         Starts and stops the spinny thing
         """
+        # check if it's the new version of the app
+        if precious_settings.is_new_version is True:
+            # bring sync window up
+            self.requireSync()
 
         # start the progress spin
         self.hourProgress.startAnimation_(self)
@@ -666,13 +840,13 @@ class PreciousController(NSWindowController):
 
         # log the hour
         precious_data.save(
-            type = 'hour',
-            productive = self.productive, 
-            activity = self.activity, 
-            year = self.curr_time.year, 
-            month = self.curr_time.month, 
-            day = self.curr_time.day, 
-            hour = self.curr_time.hour)
+            type='hour',
+            productive=self.productive,
+            activity=self.activity,
+            year=self.curr_time.year,
+            month=self.curr_time.month,
+            day=self.curr_time.day,
+            hour=self.curr_time.hour)
         
         # set the hour label colour to black
         self.hourLabel.setTextColor_(NSColor.blackColor())
@@ -705,6 +879,10 @@ class PreciousController(NSWindowController):
         Makes the day label black
         Starts and stops the spinny thing
         """
+        # check if it's the new version of the app
+        if precious_settings.is_new_version is True:
+            # bring sync window up
+            self.requireSync()
 
         # start the progress spin
         self.dayProgress.startAnimation_(self)
@@ -712,11 +890,11 @@ class PreciousController(NSWindowController):
         self.reflection = self.dayField.stringValue()
         
         precious_data.save(
-            type = 'day',
-            reflection = self.reflection,
-            year = self.curr_time.year, 
-            month = self.curr_time.month, 
-            day = self.curr_time.day)
+            type='day',
+            reflection=self.reflection,
+            year=self.curr_time.year,
+            month=self.curr_time.month,
+            day=self.curr_time.day)
         
         # set the day label colour to black
         self.dayLabel.setTextColor_(NSColor.blackColor())
@@ -746,7 +924,7 @@ class PreciousController(NSWindowController):
         password = self.passwordField.stringValue()
 
         auth_success = False
-        print email
+        # print email
         try:
             user.authenticate(
                 email=email,
@@ -779,7 +957,9 @@ class PreciousController(NSWindowController):
                 # stop the spin
                 self.syncProgress.stopAnimation_(self)
                 # clear the syncAll flag if it was set
-                self.syncAllFlag = False
+                if self.syncAllFlag is True:
+                    self.switchDate()  # also update the display
+                    self.syncAllFlag = False
 
             except Exception, e:
                 print '[Action:Error] Could not sync: {0}'.format(e)
@@ -863,6 +1043,21 @@ class PreciousController(NSWindowController):
         self.syncAllFlag = True
         self.syncWindow.makeKeyAndOrderFront_(self)
 
+    ####
+    # Settings
+
+    @objc.IBAction
+    def settActivate_(self, sender):
+        """
+        Changes setting activate each hour
+        """
+        precious_settings.activate_each_hour = not precious_settings.activate_each_hour
+        precious_settings.save()
+        self.settMenuActivate.setState_(precious_settings.activate_each_hour)
+
+    ####
+    # Links
+
     @objc.IBAction
     def openStats_(self, sender):
         """
@@ -910,6 +1105,7 @@ if __name__ == "__main__":
 
     user = PreciousUser()
     precious_data = PreciousData()
+    precious_settings = PreciousSettings()
 
     # Show the window
     viewController.showWindow_(viewController)
